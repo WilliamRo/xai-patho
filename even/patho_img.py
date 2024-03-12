@@ -2,7 +2,7 @@ from roma import Nomear
 
 import cv2
 import numpy as np
-import slideflow as sf
+
 
 
 class PathoImage(Nomear):
@@ -12,6 +12,7 @@ class PathoImage(Nomear):
     self.subject = subject
     self.type = type
 
+  # region: Properties
 
   @Nomear.property()
   def binary_image(self):
@@ -21,10 +22,14 @@ class PathoImage(Nomear):
 
   @Nomear.property()
   def reinhard(self):
+    import slideflow as sf
     normalizer = sf.norm.autoselect('reinhard', backend='opencv')
     img = normalizer.transform(self.im)
     return img
 
+  # endregion: Properties
+
+  # region: Public Methods
 
   def get_lego(self, lego_key):
     if lego_key in ('raw', ): return self.im
@@ -32,6 +37,8 @@ class PathoImage(Nomear):
     if lego_key in ('rh', ): return self.reinhard
 
     return None
+
+  # endregion: Public Methods
 
 
 
