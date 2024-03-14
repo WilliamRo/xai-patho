@@ -1,5 +1,5 @@
 from collections import Counter
-from pol_set import POLSet
+from pol.pol_set import POLSet
 from roma import finder
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from tframe.data.base_classes import DataAgent

@@ -162,8 +162,8 @@ class POLSet(DataSet):
 
 
   def image_augmentation(self, data_batch: DataSet, is_training: bool):
-    import imgaug as ia
-    from imgaug import augmenters as iaa
+    # import imgaug as ia
+    # from imgaug import augmenters as iaa
     import random
     random_int = random.randint(0, 10000)
     """
@@ -172,30 +172,30 @@ class POLSet(DataSet):
     """
 
     images = data_batch.features
-    sometimes = lambda aug: iaa.Sometimes(0.3, aug)
+    # sometimes = lambda aug: iaa.Sometimes(0.3, aug)
+    #
+    # seq = iaa.Sequential([
+    #   iaa.Fliplr(0.5),  # horizontal flips
+    #   iaa.Flipud(0.5),
+    #   iaa.Crop(px=(0, 16)),
+    #   sometimes(iaa.GaussianBlur(sigma=(0, 3.0)))
+    #   # sometimes(iaa.Crop(percent=(0, 0.1))),  # random crops
+    #   # sometimes(iaa.Affine(
+    #   #   scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
+    #   #   translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
+    #   #   rotate=(-180, 180),
+    #   #   shear=(-8, 8)
+    #   # )),
+    #   # iaa.GaussianBlur(sigma=(0, 5.0)),
+    #   # iaa.OneOf([
+    #   #   iaa.LinearContrast((0.75, 1.5)),
+    #   #   iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255),
+    #   #                             per_channel=0.5),
+    #   #   iaa.Multiply((0.5, 1.5), per_channel=0.5),
+    #   # ]),
+    # ], random_order=True)  # apply augmenters in random order
 
-    seq = iaa.Sequential([
-      iaa.Fliplr(0.5),  # horizontal flips
-      iaa.Flipud(0.5),
-      iaa.Crop(px=(0, 16)),
-      sometimes(iaa.GaussianBlur(sigma=(0, 3.0)))
-      # sometimes(iaa.Crop(percent=(0, 0.1))),  # random crops
-      # sometimes(iaa.Affine(
-      #   scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-      #   translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
-      #   rotate=(-180, 180),
-      #   shear=(-8, 8)
-      # )),
-      # iaa.GaussianBlur(sigma=(0, 5.0)),
-      # iaa.OneOf([
-      #   iaa.LinearContrast((0.75, 1.5)),
-      #   iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255),
-      #                             per_channel=0.5),
-      #   iaa.Multiply((0.5, 1.5), per_channel=0.5),
-      # ]),
-    ], random_order=True)  # apply augmenters in random order
-
-    data_batch.features = seq(images=images)
+    # data_batch.features = seq(images=images)
     # ia.imshow(ia.draw_grid(list(images_aug), cols=4, rows=8))
     # rows, cols = 4, 4
     # fig, axs = plt.subplots(rows, cols, figsize=(16, 8))

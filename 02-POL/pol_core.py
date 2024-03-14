@@ -35,7 +35,6 @@ import pol_du as du
 th = Hub(as_global=True)
 th.config_dir()
 th.data_dir = os.path.join(ROOT, 'data')
-# th.data_dir = r'H:\BA_MIA\BAMIA\data'
 
 # -----------------------------------------------------------------------------
 # Device configuration
@@ -46,8 +45,7 @@ th.gpu_memory_fraction = 0.9
 # -----------------------------------------------------------------------------
 # Data configuration
 # -----------------------------------------------------------------------------
-# th.input_shape = [int(th.data_config.split(':')[-1])] * 2 + [3]
-# th.input_shape = [None, None, 3]
+th.input_shape = [100, 100, 3]
 
 th.num_classes = 3
 # -----------------------------------------------------------------------------

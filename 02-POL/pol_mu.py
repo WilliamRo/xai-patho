@@ -1,6 +1,6 @@
-
 from pol_core import th
 from tframe import Classifier
+from tframe import context
 from tframe import console
 from tframe import mu, tf
 from tframe.layers.layer import Layer
@@ -12,6 +12,66 @@ from tframe import pedia
 import numpy as np
 
 
+
+def get_container(flatten=False, fully_conv=False):
+  model = Classifier(mark=th.mark)
+  shape = [int(th.data_config.split(':')[-1])] * 2 + [3]
+  shape = th.input_shape
+  if fully_conv: shape = [None, None, 3]
+  model.add(mu.Input(sample_shape=shape))
+  if th.centralize_data: model.add(mu.Normalize(mu=th.data_mean, sigma=255.))
+  if flatten: model.add(mu.Flatten())
+  # model.add(Reshape2Average(batch_size=th.batch_size))
+
+  return model
+
+
+def finalize(model, fully_conv=False):
+  assert isinstance(model, Classifier)
+
+  if fully_conv:
+    model.add(mu.Conv2D(filters=th.num_classes, kernel_size=1, use_bias=False))
+    # model.add(mu.GlobalAveragePooling2D())
+    model.add(AveragePoolingLayer())
+    model.add(mu.Activation('softmax'))
+  else:
+    # model.add(PatchPooling_v1(batch_size=th.batch_size))
+    model.add(mu.Dense(num_neurons=th.num_classes, use_bias=False, prune_frac=0.05))
+    # model.add(mu.BatchNormalization())
+    model.add(mu.Activation('softmax'))
+
+
+  metrics = ['accuracy', 'loss']
+  # Inject distance loss if required
+  if 'dloss' in th.developer_code:
+    context.customized_loss_f_net = inject_distance_loss
+
+  # Build model
+  model.build(metric=metrics, batch_metric='accuracy',
+              eval_metric='accuracy')
+  return model
+
+
+def inject_distance_loss(model):
+  assert isinstance(model, Classifier)
+
+  # Get flattened tensor
+  nets = [n for n in model.children if 'flatten' in str(n)]
+  assert len(nets) == 1
+  wv = nets[0].output_tensor
+  w, v = tf.split(wv, 2, axis=0)
+  d = tf.reduce_mean(tf.square(w - v))
+
+  # Put d in update_group
+  from tframe.core.slots import TensorSlot
+  slot = TensorSlot(model, 'WVLoss')
+  slot.plug(d)
+  model._update_group.add(slot)
+
+  return [d]
+
+
+# region: Customized Layers
 
 class Reshape2Average(Layer):
 
@@ -75,6 +135,7 @@ class PatchPooling_v1(HyperBase):
     # print(output.shape)
     return res
 
+
 class AveragePoolingLayer(Layer):
   full_name = 'globalavgpool2d'
   abbreviation = 'gap2d'
@@ -84,37 +145,4 @@ class AveragePoolingLayer(Layer):
     average_pooled = tf.reduce_mean(input_, axis=[1, 2], keepdims=False)
     return average_pooled
 
-
-def get_container(flatten=False, fully_conv=False):
-  model = Classifier(mark=th.mark)
-  shape = [int(th.data_config.split(':')[-1])] * 2 + [3]
-  shape = th.input_shape
-  if fully_conv: shape = [None, None, 3]
-  model.add(mu.Input(sample_shape=shape))
-  if th.centralize_data: model.add(mu.Normalize(mu=th.data_mean, sigma=255.))
-  if flatten: model.add(mu.Flatten())
-  # model.add(Reshape2Average(batch_size=th.batch_size))
-
-  return model
-
-
-def finalize(model, fully_conv=False):
-  assert isinstance(model, Classifier)
-
-  if fully_conv:
-    model.add(mu.Conv2D(filters=th.num_classes, kernel_size=1, use_bias=False))
-    # model.add(mu.GlobalAveragePooling2D())
-    model.add(AveragePoolingLayer())
-    model.add(mu.Activation('softmax'))
-  else:
-    # model.add(PatchPooling_v1(batch_size=th.batch_size))
-    model.add(mu.Dense(num_neurons=th.num_classes, use_bias=False, prune_frac=0.05))
-    # model.add(mu.BatchNormalization())
-    model.add(mu.Activation('softmax'))
-
-  # Build model
-  model.build(metric=['accuracy', 'loss'], batch_metric='accuracy',
-              eval_metric='accuracy')
-  return model
-
-
+# endregion: Customized Layers

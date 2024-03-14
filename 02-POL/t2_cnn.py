@@ -5,6 +5,7 @@ from tframe import console
 from tframe.utils.misc import date_string
 
 
+
 # -----------------------------------------------------------------------------
 # Define model here
 # -----------------------------------------------------------------------------
@@ -35,6 +36,7 @@ def model():
   model.add(m.mu.Flatten())
   return m.finalize(model)
 
+
 def main(_):
   console.start('{} on polyp task'.format(model_name.upper()))
 
@@ -43,14 +45,12 @@ def main(_):
   # ---------------------------------------------------------------------------
   # 0. date set setup
   # ---------------------------------------------------------------------------
-  th.data_config = 'wsi:16:300'  # wsi/video
+  th.data_config = 'video:16:300'  # wsi/video
+  th.developer_code = 'dloss'
   th.input_shape = [100, 100, 3]
 
   th.num_classes = 2
-  th.val_size = 2
-  th.test_size = 2
 
-  th.centralize_data = False
   th.augmentation = True
   th.aug_config = 'rotate'
   # ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ def main(_):
   th.batch_size = 16
 
   th.optimizer = 'adam'
-  th.learning_rate = 0.0008
+  th.learning_rate = 0.0003
 
   th.patience = 10
 
@@ -90,7 +90,6 @@ def main(_):
   th.train = True
   th.save_model = True
   th.overwrite = True
-  # th.rehearse = True
 
   # ---------------------------------------------------------------------------
   # 5. other stuff and activate
@@ -101,8 +100,9 @@ def main(_):
   th.evaluate_test_set = True
 
   th.mark = prefix + '{}({}){}'.format(model_name, th.num_layers, tail)
-  th.gather_summ_name = prefix + summ_name + tail +  '.sum'
+  th.gather_summ_name = prefix + summ_name + tail + '.sum'
   core.activate()
+
 
 
 if __name__ == '__main__':
