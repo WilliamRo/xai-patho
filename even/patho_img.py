@@ -2,15 +2,24 @@ from roma import Nomear
 
 import cv2
 import numpy as np
-
+import os
 
 
 class PathoImage(Nomear):
 
-  def __init__(self, im: np.ndarray, subject=None, type=None):
-    self.im = im
-    self.subject = subject
-    self.type = type
+  def __init__(self, path):
+    """
+        path (str): fullpath to patch
+    """
+    self.path = path
+    self.im = cv2.imread(path, cv2.COLOR_BGR2RGB)
+
+    basename = os.path.splitext(os.path.basename(path))[0]
+    classification, subject, number, dataset_name = basename.split('_')
+    self.subject = '_'.join([subject, number])
+    self.classification = classification
+    self.data_name = dataset_name
+
 
   # region: Properties
 

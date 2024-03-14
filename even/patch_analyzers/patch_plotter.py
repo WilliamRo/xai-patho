@@ -13,8 +13,16 @@ class PatchPlotter(Retina):
     super().__init__()
     self.lego_key = lego
 
+    self.new_settable_attr('patch_pair', False, bool, 'patch pair')
+
 
   def imshow(self, ax: plt.Axes, x: PathoImage, fig: plt.Figure, label: str):
+    if self.get('patch_pair'):
+      classes = ['wsi', 'video']
+      origin_dn = x.data_name
+      new_dn = classes[1 - classes.index(origin_dn)]
+      path = x.path.replace(origin_dn, new_dn)
+      x = PathoImage(path)
     patho_image = x
     x = patho_image.get_lego(self.lego_key)
 
@@ -59,3 +67,8 @@ class PatchPlotter(Retina):
       divider = make_axes_locatable(ax)
       cax = divider.append_axes('right', size='5%', pad=0.05)
       fig.colorbar(im, cax=cax)
+
+  def register_shortcuts(self):
+    self.register_a_shortcut(
+      'p', lambda: self.flip('patch_pair'), 'Turn on/off patch pair'
+    )

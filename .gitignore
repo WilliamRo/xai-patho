@@ -1,10 +1,13 @@
 data/
+*.sum
+*.txt
 
 # Ignore PyCharm files
 .idea/
 
 # Ignore byte-compiled files
 *.pyc
+*.log
 *pycache*
 
 # Ignore data / checkpoint / log files
